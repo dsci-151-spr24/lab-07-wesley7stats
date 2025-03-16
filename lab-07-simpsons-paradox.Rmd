@@ -99,11 +99,21 @@ ggplot(data=Whickham, aes(x=age,)) +
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards.*
 
 5.  Create a visualization depicting the relationship between smoking status and health outcome. Briefly describe the relationship, and evaluate whether this meets your expectations. Additionally, calculate the relevant conditional probabilities to help your narrative. Here is some code to get you started:
+```{r}
+ggplot(data=Whickham, aes(y=outcome, fill=smoker)) +
+  geom_bar(position = "fill") +
+  ggtitle("Distribution of Outcome")
+
+
+```
 
 ```{r}
 Whickham %>%
-  count(smoker, outcome)
+  count(smoker, outcome) %>%
+  group_by(smoker) %>%
+  mutate(prop.dead = n/sum(n))
 ```
+***This does not meet what I thought would happen. It appears that those who have smoked have a higher prbability of being alive 20 years later.*** 
 
 6.  Create a new variable called `age_cat` using the following scheme:
 
@@ -111,11 +121,33 @@ Whickham %>%
 -   `age > 44 & age <= 64 ~ "45-64"`
 -   `age > 64 ~ "65+"`
 
-7.  Re-create the visualization depicting the relationship between smoking status and health outcome, faceted by `age_cat`. What changed? What might explain this change? Extend the contingency table from earlier by breaking it down by age category and use it to help your narrative.
+```{r}
 
-```{r, eval=FALSE}
-Whickham %>%
-  count(smoker, age_cat, outcome)
+Whickham = Whickham %>%
+  mutate(age_cat = cut(age,
+                       breaks= c(0, 44, 64, 85), 
+                       labels = c("18-44", "45-64", "65+")))
+
+
 ```
+
+7.  Re-create the visualization depicting the relationship between smoking status and health outcome, faceted by `age_cat`. What changed? What might explain this change? Extend the contingency table from earlier by breaking it down by age category and use it to help your narrative.
+```{r}
+ggplot(data=Whickham, aes(y=outcome, fill=smoker)) +
+  geom_bar(position = "fill") +
+  facet_wrap(~age_cat)
+  ggtitle("Distribution of Outcome")
+
+
+```
+
+***In the plot it appears that smokers have a higher probability of being dead in each age category***
+```{r}
+Whickham %>%
+  count(smoker, age_cat, outcome) %>% 
+  group_by(smoker, age_cat) %>%
+  mutate(prop.dead = n/sum(n))
+```
+
 
 🧶 ✅ ⬆️ Knit, *commit, and push your changes to GitHub with an appropriate commit message. Make sure to commit and push all changed files so that your Git pane is cleared up afterwards and review the md document on GitHub to make sure you're happy with the final state of your work.*
